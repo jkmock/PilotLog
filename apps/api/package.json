@@ -4,10 +4,11 @@
         "@pilot-log/shared": "workspace:*"
     },
     "devDependencies": {
-        "@types/node": "^26.6.5"
+        "@types/node": "^26.6.5",
+        "tsx": "^4.23.15"
     },
     "type": "module",
     "scripts": {
-    "dev": "tsx watch src/index.ts"
-  }
+        "dev": "tsx watch src/index.ts"
+    }
 }
