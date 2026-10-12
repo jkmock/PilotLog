@@ -11,5 +11,6 @@
     "scripts": {
         "dev": "tsx watch src/index.ts",
         "typecheck": "tsc"
-    }
+    },
+    "private": true
 }
