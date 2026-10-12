@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm --filter @pilot-log/api dev"
+    "dev": "pnpm --filter @pilot-log/api dev",
+    "db:up": "dbmate up",
+    "db:status": "dbmate status",
+    "db:rollback": "dbmate rollback",
+    "db:new": "dbmate new",
+    "db:dump": "dbmate dump"
   },
   "license": "ISC",
   "devEngines": {
@@ -16,6 +21,7 @@
   "packageManager": "pnpm@12.11.2",
   "type": "module",
   "devDependencies": {
+    "dbmate": "^2.36.0",
     "typescript": "^7.0.2"
   }
 }
