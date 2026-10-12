@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    // Which JS version to output. Node 24+ supports this fully.
+    "target": "ES2023",
+
+    // Use Node's real ESM rules (this is why you write './file.js' in imports)
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    // Turns on all the strict type checks. Always on for new projects.
+    "strict": true,
+    // array[i] is typed as `T | undefined`, which catches a whole class of bugs
+    "noUncheckedIndexedAccess": true,
+
+    // tsx compiles one file at a time; this flags code that only works when
+    // the whole project is compiled together
+    "isolatedModules": true,
+    // Makes you write `import type { X }` for types, so the import disappears
+    // cleanly from the JS output
+    "verbatimModuleSyntax": true,
+
+    // Don't type-check library .d.ts files inside node_modules (faster, less noise)
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
+  },
+  "module": "NodeNext",
+  "moduleResolution": "NodeNext"
+}

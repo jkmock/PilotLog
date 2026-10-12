@@ -1,0 +1,5 @@
+{
+    "name": "@pilot-log/shared",
+    "exports": "./src/index.js",
+    "type": "module"
+}

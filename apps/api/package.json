@@ -1,0 +1,13 @@
+{
+    "name": "@pilot-log/api",
+    "dependencies": {
+        "@pilot-log/shared": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/node": "^26.6.5"
+    },
+    "type": "module",
+    "scripts": {
+    "dev": "tsx watch src/index.ts"
+  }
+}
