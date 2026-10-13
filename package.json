@@ -8,7 +8,8 @@
     "db:status": "dbmate status",
     "db:rollback": "dbmate rollback",
     "db:new": "dbmate new",
-    "db:dump": "dbmate dump"
+    "db:dump": "dbmate dump",
+    "db:seed": "set -a && . ./.env && set +a && psql \"$DATABASE_URL\" -1 -f db/seeds/airports.sql"
   },
   "license": "ISC",
   "devEngines": {
