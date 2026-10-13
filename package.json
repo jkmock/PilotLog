@@ -9,6 +9,7 @@
     "db:rollback": "dbmate rollback",
     "db:new": "dbmate new",
     "db:dump": "dbmate dump",
+    "db:seed:download": "curl -fsSL --create-dirs -o data/airports.csv https://davidmegginson.github.io/ourairports-data/airports.csv",
     "db:seed": "set -a && . ./.env && set +a && psql \"$DATABASE_URL\" -1 -f db/seeds/airports.sql"
   },
   "license": "ISC",

@@ -32,7 +32,8 @@ PilotLog/
 │   └── shared/          # Code shared across apps (types, flight-time logic)
 ├── db/
 │   ├── migrations/      # SQL migrations, applied in timestamp order
-│   └── schema.sql       # Auto-generated snapshot of the current schema
+│   ├── schema.sql       # Auto-generated snapshot of the current schema
+│   └── seeds/           # Data loading scripts (airports)
 ├── docker-compose.yaml  # Local Postgres + PostGIS
 └── .env.example         # Template for local environment variables
 ```
@@ -91,7 +92,16 @@ PilotLog/
    pnpm db:up
    ```
 
-5. Start the API in watch mode:
+5. Load airport data (US airports from [OurAirports](https://ourairports.com/data/)):
+
+   ```bash
+   pnpm db:seed:download
+   pnpm db:seed
+   ```
+
+   The seed is safe to rerun: it inserts new airports and updates changed ones.
+
+6. Start the API in watch mode:
 
    ```bash
    pnpm dev
@@ -112,6 +122,8 @@ PilotLog/
 | `pnpm db:rollback` | Undo the most recent migration |
 | `pnpm db:new <name>` | Create a new migration file |
 | `pnpm db:dump` | Regenerate `db/schema.sql` from the database |
+| `pnpm db:seed:download` | Download the latest `airports.csv` into `data/` |
+| `pnpm db:seed` | Load or update airports from `data/airports.csv` |
 
 ## Database migrations
 
