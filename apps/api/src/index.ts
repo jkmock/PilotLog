@@ -1,6 +1,9 @@
 import Fastify from "fastify";
 import { pool } from "./db.js";
 
+import aircraftRoutes from "./routes/aircraft.js";
+import airportRoutes from "./routes/airports.js";
+
 const app = Fastify({ logger: true });
 
 app.get("/health", async (_request, reply) => {
@@ -13,26 +16,6 @@ app.get("/health", async (_request, reply) => {
   }
 });
 
-app.get<{ Params: { ident: string } }>("/airports/:ident", async (request, reply) => {
-  const ident = request.params.ident.toUpperCase();
-  const result = await pool.query(
-    `SELECT airport_ident AS ident,
-            airport_name  AS name,
-            airport_type  AS type,
-            ST_Y(airport_location::geometry) AS latitude,
-            ST_X(airport_location::geometry) AS longitude
-     FROM airports
-     WHERE airport_ident = $1`,
-    [ident],
-  );
-
-  if (result.rows.length === 0) {
-    return reply.code(404).send({ error: "Airport not found" });
-  }
-
-  return result.rows[0];
-})
-
 // graceful shutdown on SIGINT (close the app, then pool.end())
 async function shutdown(signal: string) {
   app.log.info(`${signal} received, shutting down`);
@@ -43,5 +26,8 @@ async function shutdown(signal: string) {
 
 process.on("SIGINT", () => void shutdown("SIGINT"));   // Ctrl+C
 process.on("SIGTERM", () => void shutdown("SIGTERM")); // sent by hosting platforms and tsx watch restarts
+
+app.register(airportRoutes);
+app.register(aircraftRoutes);
 
 await app.listen({ port: 3000 });
