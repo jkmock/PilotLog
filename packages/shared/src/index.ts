@@ -7,3 +7,4 @@ export function minutesToTenths(minutes: number): number {
 
 export * from "./schemas/aircraft.js";
 export * from "./schemas/common.js";
+export * from "./schemas/instructors.js";

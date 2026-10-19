@@ -3,8 +3,24 @@ import { pool } from "./db.js";
 
 import aircraftRoutes from "./routes/aircraft.js";
 import airportRoutes from "./routes/airports.js";
+import instructorRoutes from "./routes/instructors.js";
 
 const app = Fastify({ logger: true });
+
+app.setErrorHandler((error, request, reply) => {
+  const statusCode =
+    typeof error === "object" && error !== null && "statusCode" in error
+      ? Number(error.statusCode)
+      : 500;
+
+  if (statusCode < 500) {
+    const message = error instanceof Error ? error.message : "Bad request";
+    return reply.code(statusCode).send({ error: message });
+  }
+
+  request.log.error(error);
+  return reply.code(500).send({ error: "Internal Server Error" });
+});
 
 app.get("/health", async (_request, reply) => {
   try {
@@ -29,5 +45,6 @@ process.on("SIGTERM", () => void shutdown("SIGTERM")); // sent by hosting platfo
 
 app.register(airportRoutes);
 app.register(aircraftRoutes);
+app.register(instructorRoutes);
 
 await app.listen({ port: 3000 });
