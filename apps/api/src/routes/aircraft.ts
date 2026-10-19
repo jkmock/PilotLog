@@ -1,18 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { pool } from "../db.js";
 
-type CreateAircraftBody = {
-  tailNumber: string;
-  make: string;
-  model: string;
-  year?: number;
-  aircraftClass: "single_engine_land" | "multi_engine_land";
-  isTailwheel?: boolean;
-  isComplex?: boolean;
-  isHighPerf?: boolean;
-};
-
-type UpdateAircraftBody = Partial<Omit<CreateAircraftBody, "tailNumber">>;
+import { CreateAircraftSchema, UpdateAircraftSchema, AircraftSearchSchema, IdParamsSchema } from "@pilot-log/shared";
 
 // Shared column list: every aircraft endpoint returns this exact shape
 const AIRCRAFT_COLUMNS = `
@@ -29,11 +18,15 @@ const AIRCRAFT_COLUMNS = `
 `;
 
 export default async function aircraftRoutes(app: FastifyInstance) {
-  app.get<{ Params: { id: string } }>("/aircraft/:id", async (request, reply) => {
-    const id = request.params.id;
+  app.get("/aircraft/:id", async (request, reply) => {
+    const params = IdParamsSchema.safeParse(request.params);
+    if (!params.success) {
+      return reply.code(400).send({ error: "Invalid request", issues: params.error.issues });
+    }
+
     const result = await pool.query(
       `SELECT ${AIRCRAFT_COLUMNS} FROM aircraft WHERE aircraft_id = $1`,
-      [id],
+      [params.data.id],
     );
 
     if (result.rows.length === 0) {
@@ -43,11 +36,10 @@ export default async function aircraftRoutes(app: FastifyInstance) {
     return result.rows[0];
   });
 
-  app.get<{ Querystring: { tail?: string } }>("/aircraft", async (request, reply) => {
-    const tail = request.query.tail?.trim().toUpperCase();
-
-    if (!tail) {
-      return reply.code(400).send({ error: "Query parameter 'tail' is required" });
+  app.get("/aircraft", async (request, reply) => {
+    const params = AircraftSearchSchema.safeParse(request.query);
+    if (!params.success) {
+      return reply.code(400).send({ error: "Invalid request", issues: params.error.issues });
     }
 
     const result = await pool.query(
@@ -56,14 +48,21 @@ export default async function aircraftRoutes(app: FastifyInstance) {
       WHERE tail_number LIKE $1 || '%'
       ORDER BY tail_number
       LIMIT 10`,
-      [tail],
+      [params.data.tail],
     );
 
     return result.rows;
   });
 
-  app.post<{ Body: CreateAircraftBody }>("/aircraft", async (request, reply) => {
-    const body = request.body; // NOTE: not validated yet. Zod comes next
+  app.post("/aircraft", async (request, reply) => {
+    
+    const bodyParsed = CreateAircraftSchema.safeParse(request.body);
+
+    if (!bodyParsed.success) {
+      return reply.code(400).send({ error: "Invalid request", issues: bodyParsed.error.issues });
+    }
+
+    const body = bodyParsed.data;
 
     try {
       const result = await pool.query(
@@ -73,7 +72,7 @@ export default async function aircraftRoutes(app: FastifyInstance) {
          VALUES ($1, $2, $3, $4, 'airplane', $5, $6, $7, $8)
          RETURNING ${AIRCRAFT_COLUMNS}`,
         [
-          body.tailNumber.toUpperCase(),
+          body.tailNumber,
           body.make,
           body.model,
           body.year ?? null,
@@ -92,8 +91,22 @@ export default async function aircraftRoutes(app: FastifyInstance) {
     }
   });
 
-  app.patch<{ Params: { id: string }; Body: UpdateAircraftBody }>("/aircraft/:id", async (request, reply) => {
-    const body = request.body; // not validated yet. Zod comes next
+  app.patch("/aircraft/:id", async (request, reply) => {
+    
+    const bodyParsed = UpdateAircraftSchema.safeParse(request.body);
+
+    const paramsParsed = IdParamsSchema.safeParse(request.params);
+
+    if (!bodyParsed.success) {
+      return reply.code(400).send({ error: "Invalid request", issues: bodyParsed.error.issues });
+    }
+
+    if (!paramsParsed.success) {
+      return reply.code(400).send({ error: "Invalid request", issues: paramsParsed.error.issues });
+    }
+
+    const body = bodyParsed.data;
+    const params = paramsParsed.data;
 
     const result = await pool.query(
       `UPDATE aircraft
@@ -107,7 +120,7 @@ export default async function aircraftRoutes(app: FastifyInstance) {
       WHERE aircraft_id = $1
       RETURNING ${AIRCRAFT_COLUMNS}`,
       [
-        request.params.id,
+        params.id,
         body.make ?? null,
         body.model ?? null,
         body.year ?? null,
@@ -124,13 +137,17 @@ export default async function aircraftRoutes(app: FastifyInstance) {
     return result.rows[0];
   });
 
-  app.delete<{ Params: { id: string } }>("/aircraft/:id", async (request, reply) => {
-  
-    const id = request.params.id;
+  app.delete("/aircraft/:id", async (request, reply) => {
+
+    const params = IdParamsSchema.safeParse(request.params);
+
+    if (!params.success) {
+      return reply.code(400).send({ error: "Invalid request", issues: params.error.issues });
+    }
     
     try {
       const result = await pool.query(
-        `DELETE FROM aircraft WHERE aircraft_id = $1`, [id],
+        `DELETE FROM aircraft WHERE aircraft_id = $1`, [params.data.id],
       );
       if (result.rowCount === 0) {
         return reply.code(404).send({ error: "Aircraft not found" });
