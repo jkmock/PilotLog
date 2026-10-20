@@ -4,6 +4,7 @@ import { pool } from "./db.js";
 import aircraftRoutes from "./routes/aircraft.js";
 import airportRoutes from "./routes/airports.js";
 import instructorRoutes from "./routes/instructors.js";
+import flightRoutes from "./routes/flights.js";
 
 const app = Fastify({ logger: true });
 
@@ -46,5 +47,6 @@ process.on("SIGTERM", () => void shutdown("SIGTERM")); // sent by hosting platfo
 app.register(airportRoutes);
 app.register(aircraftRoutes);
 app.register(instructorRoutes);
+app.register(flightRoutes);
 
 await app.listen({ port: 3000 });

@@ -15,22 +15,22 @@ const INSTRUCTOR_COLUMNS = `
 
 export default async function instructorRoutes(app: FastifyInstance) {
   app.get("/instructors/:id", async (request, reply) => {
-      const params = IdParamsSchema.safeParse(request.params);
-      if (!params.success) {
-        return reply.code(400).send({ error: "Invalid request", issues: params.error.issues });
-      }
-  
-      const result = await pool.query(
-        `SELECT ${INSTRUCTOR_COLUMNS} FROM instructors WHERE instructor_id = $1 AND student_id = $2`,
-        [params.data.id, getCurrentUserId()],
-      );
-  
-      if (result.rows.length === 0) {
-        return reply.code(404).send({ error: "Instructor not found" });
-      }
-  
-      return result.rows[0];
-    });
+    const params = IdParamsSchema.safeParse(request.params);
+    if (!params.success) {
+      return reply.code(400).send({ error: "Invalid request", issues: params.error.issues });
+    }
+
+    const result = await pool.query(
+      `SELECT ${INSTRUCTOR_COLUMNS} FROM instructors WHERE instructor_id = $1 AND student_id = $2`,
+      [params.data.id, getCurrentUserId()],
+    );
+
+    if (result.rows.length === 0) {
+      return reply.code(404).send({ error: "Instructor not found" });
+    }
+
+    return result.rows[0];
+  });
   
   app.get("/instructors", async (request, reply) => {
 
