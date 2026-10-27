@@ -1,4 +1,4 @@
-# PilotLog
+# Hobbs
 
 A logbook and social app for student pilots. Log your flights, track your progress toward the FAA private pilot checkride requirements, see your routes on a map, and share flights with friends.
 
